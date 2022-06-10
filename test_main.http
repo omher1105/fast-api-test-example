@@ -1,2 +1,33 @@
 # Test your FastAPI endpoints
 
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+POST http://localhost:8000/fetch-http-resources/
+accept: application/json
+Content-Type: application/json
+
+{
+	"url": "https://rickandmortyapi.com/api/character/",
+	"filters": {
+		"name": "rick",
+		"status": "alive"	}
+}
+
+###
+
+POST http://localhost:8000/fetch-http-resources/download/
+accept: application/json
+Content-Type: application/json
+
+{
+	"url": "https://rickandmortyapi.com/api/character/",
+	"filters": {
+		"name": "rick",
+		"status": "alive"	}
+}
+
+
+###
