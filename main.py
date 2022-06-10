@@ -13,6 +13,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 client = http3.AsyncClient()
 
+
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
@@ -38,5 +39,34 @@ async def redoc_html():
     )
 
 
+MICROSERVICES_URL_API = 'https://financialmodelingprep.com/api/v3/'
+API_KEY = 'e0446b98ba66087e1491c21caf98f336'
+
+AVAILABLE_STOCKS = ['AAPL', 'GOOGL', 'GOOGL', 'AMZN', 'TSLA', 'FB', 'TWTR', 'UBER', 'LYFT', 'SNAP', 'SHOP']
 
 
+async def amount_by_material(material: str):
+    api_url = f"{MICROSERVICES_URL_API}quote-short/{material}"
+    price = 0
+    try:
+        r = await client.get(api_url, params={'apikey': API_KEY})
+        materials_serializable = r.json()
+        for material in materials_serializable:
+            price += float(material['price']) or 0
+        return price
+    except:
+        print({'error': f'problem occurred {api_url}'})
+        return price
+
+
+@app.get("/amount-by-materials/{materials}")
+async def amount_by_materials_all(params: str):
+    try:
+        total = 0
+        materials = params.split(',') if params else AVAILABLE_STOCKS
+        for material in materials:
+            price_by_material = await amount_by_material(material)
+            total += price_by_material
+        return {'total': "{:.2f}".format(total)}
+    except BaseException as err:
+        return err
